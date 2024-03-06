@@ -36,6 +36,7 @@ Use it by inserting a `DebugGridView3d` bundle on your `Grid` entity (or `DebugG
 
 | `bevy_ghx_grid` | `bevy` |
 | :-------------- | :----- |
+| `0.2`           | `0.13` |
 | `0.1`           | `0.12` |
 
 ## License
