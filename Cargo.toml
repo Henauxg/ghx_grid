@@ -2,7 +2,8 @@
 resolver = "2"
 
 members = [
-	"ghx_grid", # Lib
+	"ghx_grid",      # Lib
+	"bevy_ghx_grid", # Bevy plugin
 ]
 
 # Enable a small amount of optimization in debug mode
