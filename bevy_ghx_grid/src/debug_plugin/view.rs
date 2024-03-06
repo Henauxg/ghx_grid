@@ -9,11 +9,11 @@ use ghx_grid::grid::GridDefinition;
 
 use super::CoordinateSystem;
 
-/// 3d-specific ([`bevy::prelude::Camera3d`]) component-marker of a grid debug view
+/// 3d-specific (`Camera3d`) component-marker of a grid debug view
 #[derive(Component, Default)]
 pub struct DebugGridView3d;
 
-/// 2d-specific ([`bevy::prelude::Camera2d`]) component-marker of a grid debug view
+/// 2d-specific (`Camera2d`) component-marker of a grid debug view
 #[derive(Component, Default)]
 pub struct DebugGridView2d;
 
@@ -55,7 +55,7 @@ impl DebugGridView {
 
 /// System that uses [`Gizmos`] to render the debug grid every frame.
 ///
-/// To be used with a [`bevy::prelude::Camera3d`]
+/// To be used with a `Camera3d`
 pub fn draw_debug_grids_3d<T: CoordinateSystem>(
     mut gizmos: Gizmos,
     debug_grids: Query<(&Transform, &GridDefinition<T>, &DebugGridView), With<DebugGridView3d>>,
@@ -107,7 +107,7 @@ pub fn draw_debug_grids_3d<T: CoordinateSystem>(
 
 /// System that uses [`Gizmos`] to render the debug grid every frame.
 ///
-/// To be used with a [`bevy::prelude::Camera2d`]
+/// To be used with a `Camera2d`
 pub fn draw_debug_grids_2d<T: CoordinateSystem>(
     mut gizmos: Gizmos,
     debug_grids: Query<(&Transform, &GridDefinition<T>, &DebugGridView), With<DebugGridView2d>>,

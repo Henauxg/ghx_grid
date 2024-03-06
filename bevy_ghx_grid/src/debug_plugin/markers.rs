@@ -62,7 +62,7 @@ pub fn spawn_marker(
 ///
 /// Should be called after the systems that generate [`MarkerDespawnEvent`]
 ///
-/// Called in the [`bevy::app::PostUpdate`] schedule by default, by the [`crate::grid::GridDebugPlugin`]
+/// Called in the [`bevy::app::PostUpdate`] schedule by default, by the [`crate::debug_plugin::GridDebugPlugin`]
 pub fn despawn_debug_markers(
     mut commands: Commands,
     mut marker_events: EventReader<MarkerDespawnEvent>,

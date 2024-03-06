@@ -332,7 +332,6 @@ impl<C: CoordinateSystem> GridDefinition<C> {
 /// let grid = GridDefinition::new_cartesian_2d(10, 10, false, false);
 /// let grid_data = grid.default_grid_data::<u64>();
 /// ```
-/// You can also retrieve a pre-created existing `GridData` from a [`crate::generator::Generator`], or from an observer like a [`crate::generator::observer::QueuedStatefulObserver`]
 #[derive(Clone)]
 #[cfg_attr(feature = "bevy", derive(Component, Default))]
 pub struct GridData<C: CoordinateSystem, D> {
