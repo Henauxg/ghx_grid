@@ -327,7 +327,7 @@ impl<C: CoordinateSystem> GridDefinition<C> {
 ///
 /// Create a default `GridData` from a `GridDefinition`
 /// ```
-/// use ghx_proc_gen::grid::GridDefinition;
+/// use ghx_grid::grid::GridDefinition;
 ///
 /// let grid = GridDefinition::new_cartesian_2d(10, 10, false, false);
 /// let grid_data = grid.default_grid_data::<u64>();
