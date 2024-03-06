@@ -1,3 +1,5 @@
+#![warn(missing_docs)]
+
 /// Defines directions
 pub mod direction;
 
