@@ -1,15 +1,22 @@
-[workspace]
-resolver = "2"
+[package]
+name = "ghx_grid"
+version = "0.2.0"
+description = "2D & 3D grid structures & utilities"
+repository = "https://github.com/Henauxg/ghx_grid"
+documentation = "https://docs.rs/ghx_grid"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+keywords = ["gamedev", "grid"]
+categories = ["game-development"]
+readme = "README.md"
 
-members = [
-	"ghx_grid",      # Lib
-	"bevy_ghx_grid", # Bevy plugin
-]
+[features]
+# Enables some Bevy trait derives
+bevy = ["dep:bevy"]
+# Enables more Bevy trait derives for reflection
+reflect = ["bevy"]
 
-# Enable a small amount of optimization in debug mode
-[profile.dev]
-opt-level = 1
+[dependencies]
 
-# Enable high optimizations for dependencies (incl. Bevy), but not for our code:
-[profile.dev.package."*"]
-opt-level = 3
+# Only enabled when the "bevy" feature is enabled
+bevy = { version = "0.13.0", optional = true, default-features = false }
