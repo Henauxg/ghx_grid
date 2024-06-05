@@ -1,4 +1,4 @@
-use std::{fmt, ops::Range};
+use std::{fmt, marker::PhantomData, ops::Range};
 
 use crate::{
     coordinate_system::{Cartesian2D, Cartesian3D, CoordinateSystem},
@@ -12,6 +12,105 @@ use bevy::{ecs::reflect::ReflectComponent, reflect::Reflect};
 
 /// Index of a grid element
 pub type GridIndex = usize;
+
+pub trait IsCartesian:
+    CoordinateSystem<Direction = Direction, GridDelta = GridDelta, GridPosition = GridPosition>
+{
+}
+impl<T> IsCartesian for T where
+    T: CoordinateSystem<Direction = Direction, GridDelta = GridDelta, GridPosition = GridPosition>
+{
+}
+
+pub trait Grid<C: CoordinateSystem>: Clone {
+    fn index_from_pos(&self, grid_position: &C::GridPosition) -> GridIndex;
+    fn pos_from_index(&self, grid_index: GridIndex) -> C::GridPosition;
+    fn total_size(&self) -> usize;
+    fn directions(&self) -> &'static [C::Direction];
+    fn get_next_index_in_direction(
+        &self,
+        grid_position: &C::GridPosition,
+        direction: C::Direction,
+    ) -> Option<GridIndex> {
+        Grid::get_index_in_direction(self, grid_position, direction, 1)
+    }
+    fn get_index_in_direction(
+        &self,
+        grid_position: &C::GridPosition,
+        direction: C::Direction,
+        units: i32,
+    ) -> Option<GridIndex>;
+}
+
+impl<C: IsCartesian> Grid<C> for GridDefinition<C> {
+    /// Returns the index from a grid position.
+    ///
+    /// NO CHECK is done to verify that the given `grid_position` is a valid position for this grid.
+    #[inline]
+    fn index_from_pos(&self, grid_position: &GridPosition) -> GridIndex {
+        self.index_from_coords(grid_position.x, grid_position.y, grid_position.z)
+    }
+
+    /// Returns a [`GridPosition`] from the index of an element in this [`GridDefinition`].
+    ///
+    /// Panics if the index is not a valid index.
+    #[inline]
+    fn pos_from_index(&self, grid_index: GridIndex) -> GridPosition {
+        let index = u32::try_from(grid_index).unwrap();
+        GridPosition {
+            x: index % self.size_x,
+            y: (index / self.size_x) % self.size_y,
+            z: index / self.size_xy,
+        }
+    }
+
+    /// Returns the total size of the grid
+    #[inline]
+    fn total_size(&self) -> usize {
+        (self.size_x * self.size_y).try_into().unwrap()
+    }
+
+    /// Returns all the [`Direction`] in the [`CoordinateSystem`] used by this [`GridDefinition`]
+    #[inline]
+    fn directions(&self) -> &'static [C::Direction] {
+        self.coord_system.directions()
+    }
+
+    /// Returns the index of the next position in the grid when moving 1 unit in `direction` from `grid_position`.
+    ///
+    /// Returns `None` if the destination is not in the grid.
+    ///
+    /// NO CHECK is done to verify that the given `grid_position` is a valid position for this grid.
+    fn get_next_index_in_direction(
+        &self,
+        grid_position: &GridPosition,
+        direction: Direction,
+    ) -> Option<GridIndex> {
+        let delta = &self.coord_system.deltas()[direction as usize];
+        match self.get_next_pos(grid_position, &delta) {
+            Some(next_pos) => Some(self.index_from_pos(&next_pos)),
+            None => None,
+        }
+    }
+
+    /// Returns the index of the next position in the grid when moving `units` in `direction` from `grid_position`.
+    ///
+    /// Returns `None` if the destination is not in the grid.
+    ///
+    /// NO CHECK is done to verify that the given `grid_position` is a valid position for this grid.
+    fn get_index_in_direction(
+        &self,
+        grid_position: &GridPosition,
+        direction: Direction,
+        units: i32,
+    ) -> Option<GridIndex> {
+        let delta = self.coord_system.deltas()[direction as usize].clone() * units;
+        match self.get_next_pos(grid_position, &delta) {
+            Some(next_pos) => Some(self.index_from_pos(&next_pos)),
+            None => None,
+        }
+    }
+}
 
 /// Represents a position in a grid in a practical format
 #[derive(Default, Debug, Clone, Copy, PartialEq, Eq)]
@@ -66,7 +165,7 @@ pub struct GridDefinition<C: CoordinateSystem> {
     size_xy: u32,
 }
 
-impl<C: CoordinateSystem> fmt::Display for GridDefinition<C> {
+impl<C: IsCartesian> fmt::Display for GridDefinition<C> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
@@ -130,7 +229,7 @@ impl GridDefinition<Cartesian3D> {
     }
 }
 
-impl<C: CoordinateSystem> GridDefinition<C> {
+impl<C: IsCartesian> GridDefinition<C> {
     /// Creates a new [`GridDefinition`]
     pub fn new(
         size_x: u32,
@@ -178,22 +277,10 @@ impl<C: CoordinateSystem> GridDefinition<C> {
         (self.size_x, self.size_y, self.size_z)
     }
 
-    /// Returns the total size of the grid
-    #[inline]
-    pub fn total_size(&self) -> usize {
-        (self.size_xy * self.size_z).try_into().unwrap()
-    }
-
     /// Returns a [`Range`] over all indexes in this grid
     #[inline]
     pub fn indexes(&self) -> Range<GridIndex> {
         0..self.total_size()
-    }
-
-    /// Returns all the [`Direction`] in the [`CoordinateSystem`] used by this [`GridDefinition`]
-    #[inline]
-    pub fn directions(&self) -> &'static [Direction] {
-        self.coord_system.directions()
     }
 
     /// Returns all the the [`CoordinateSystem`] used by this [`GridDefinition`]
@@ -208,27 +295,6 @@ impl<C: CoordinateSystem> GridDefinition<C> {
     #[inline]
     pub fn index_from_coords(&self, x: u32, y: u32, z: u32) -> GridIndex {
         (x + y * self.size_x + z * self.size_xy).try_into().unwrap()
-    }
-
-    /// Returns the index from a grid position.
-    ///
-    /// NO CHECK is done to verify that the given `grid_position` is a valid position for this grid.
-    #[inline]
-    pub fn index_from_pos(&self, grid_position: &GridPosition) -> GridIndex {
-        self.index_from_coords(grid_position.x, grid_position.y, grid_position.z)
-    }
-
-    /// Returns a [`GridPosition`] from the index of an element in this [`GridDefinition`].
-    ///
-    /// Panics if the index is not a valid index.
-    #[inline]
-    pub fn pos_from_index(&self, grid_index: GridIndex) -> GridPosition {
-        let index = u32::try_from(grid_index).unwrap();
-        GridPosition {
-            x: index % self.size_x,
-            y: (index / self.size_x) % self.size_y,
-            z: index / self.size_xy,
-        }
     }
 
     /// Returns the next position in the grid when moving `delta` unit(s) in `direction` from `grid_position`.
@@ -270,55 +336,14 @@ impl<C: CoordinateSystem> GridDefinition<C> {
         })
     }
 
-    /// Returns the index of the next position in the grid when moving 1 unit in `direction` from `grid_position`.
-    ///
-    /// Returns `None` if the destination is not in the grid.
-    ///
-    /// NO CHECK is done to verify that the given `grid_position` is a valid position for this grid.
-    pub fn get_next_index_in_direction(
-        &self,
-        grid_position: &GridPosition,
-        direction: Direction,
-    ) -> Option<GridIndex> {
-        let delta = &self.coord_system.deltas()[direction as usize];
-        match self.get_next_pos(grid_position, &delta) {
-            Some(next_pos) => Some(self.index_from_pos(&next_pos)),
-            None => None,
-        }
-    }
-
-    /// Returns the index of the next position in the grid when moving `units` in `direction` from `grid_position`.
-    ///
-    /// Returns `None` if the destination is not in the grid.
-    ///
-    /// NO CHECK is done to verify that the given `grid_position` is a valid position for this grid.
-    pub fn get_index_in_direction(
-        &self,
-        grid_position: &GridPosition,
-        direction: Direction,
-        units: i32,
-    ) -> Option<GridIndex> {
-        let delta = self.coord_system.deltas()[direction as usize].clone() * units;
-        match self.get_next_pos(grid_position, &delta) {
-            Some(next_pos) => Some(self.index_from_pos(&next_pos)),
-            None => None,
-        }
-    }
-
     /// Creates a default [`GridData`] with the size of the [`GridDefinition`] with each element value set to its default one.
-    pub fn default_grid_data<D: Default + Clone>(&self) -> GridData<C, D> {
-        GridData {
-            grid: self.clone(),
-            data: vec![D::default(); self.total_size()],
-        }
+    pub fn default_grid_data<D: Default + Clone>(&self) -> GridData<C, D, GridDefinition<C>> {
+        GridData::new(self.clone(), vec![D::default(); self.total_size()])
     }
 
     /// Creates a [`GridData`] with the size of the [`GridDefinition`] with each element value being a copy of the given one.
-    pub fn new_grid_data<D: Clone>(&self, element: D) -> GridData<C, D> {
-        GridData {
-            grid: self.clone(),
-            data: vec![element; self.total_size()],
-        }
+    pub fn new_grid_data<D: Clone>(&self, element: D) -> GridData<C, D, GridDefinition<C>> {
+        GridData::new(self.clone(), vec![element; self.total_size()])
     }
 }
 
@@ -334,21 +359,34 @@ impl<C: CoordinateSystem> GridDefinition<C> {
 /// ```
 #[derive(Clone)]
 #[cfg_attr(feature = "bevy", derive(Component, Default))]
-pub struct GridData<C: CoordinateSystem, D> {
-    grid: GridDefinition<C>,
+pub struct GridData<C, D, G>
+where
+    C: CoordinateSystem,
+    G: Grid<C>,
+{
+    grid: G,
     data: Vec<D>,
+    _phantom: PhantomData<C>,
 }
 
-impl<C: CoordinateSystem, D> GridData<C, D> {
+impl<C, D, G> GridData<C, D, G>
+where
+    C: CoordinateSystem,
+    G: Grid<C>,
+{
     /// Prefer using `default_grid_data` or `new_grid_data` directly on an existing grid definition to create a `GridData` with a correct data Vec.
     #[inline]
-    pub fn new(grid: GridDefinition<C>, data: Vec<D>) -> Self {
-        Self { grid, data }
+    pub fn new(grid: G, data: Vec<D>) -> Self {
+        Self {
+            grid,
+            data,
+            _phantom: PhantomData,
+        }
     }
 
     /// Returns a reference to the `GridDefinition` this is based on
     #[inline]
-    pub fn grid(&self) -> &GridDefinition<C> {
+    pub fn grid(&self) -> &G {
         &self.grid
     }
 
@@ -391,15 +429,17 @@ impl<C: CoordinateSystem, D> GridData<C, D> {
     }
 }
 
-/// Uses Copy if possible.
-impl<C: CoordinateSystem, D: Clone> GridData<C, D> {
+impl<C: CoordinateSystem, D: Clone, G: Grid<C>> GridData<C, D, G> {
     /// Resets the whole grid buffer by setting the value of each element to `value`
     pub fn reset(&mut self, value: D) {
         for d in self.data.iter_mut() {
             *d = value.clone();
         }
     }
+}
 
+/// Uses Copy if possible.
+impl<C: IsCartesian, D: Clone> GridData<C, D, GridDefinition<C>> {
     /// Sets all nodes of the grix with x=`x` to `value`
     pub fn set_all_x(&mut self, x: u32, value: D) {
         let mut index = x;
@@ -461,7 +501,7 @@ impl<C: CoordinateSystem, D: Clone> GridData<C, D> {
     }
 }
 
-impl<D> GridData<Cartesian2D, D> {
+impl<D> GridData<Cartesian2D, D, GridDefinition<Cartesian2D>> {
     /// Returns a reference to the element at this position.
     ///
     /// NO CHECK is done to verify that the given position is a valid position for this grid.
@@ -479,7 +519,7 @@ impl<D> GridData<Cartesian2D, D> {
     }
 }
 
-impl<D> GridData<Cartesian3D, D> {
+impl<D> GridData<Cartesian3D, D, GridDefinition<Cartesian3D>> {
     /// Returns a reference to the data at this position.
     ///
     /// NO CHECK is done to verify that the given position is a valid position for this grid.
@@ -500,31 +540,16 @@ impl<D> GridData<Cartesian3D, D> {
 /// Represents a reference to an element of a [`GridDefinition`] or [`GridData`]
 pub trait NodeRef<C: CoordinateSystem> {
     /// Returns the [`GridIndex`] that is referenced by this `NodeRef`.
-    fn to_index(&self, grid: &GridDefinition<C>) -> GridIndex;
+    fn to_index(&self, grid: &impl Grid<C>) -> GridIndex;
 }
-impl<C: CoordinateSystem> NodeRef<C> for &GridPosition {
-    fn to_index(&self, grid: &GridDefinition<C>) -> GridIndex {
-        grid.index_from_pos(self)
-    }
-}
-impl<C: CoordinateSystem> NodeRef<C> for GridPosition {
-    fn to_index(&self, grid: &GridDefinition<C>) -> GridIndex {
-        grid.index_from_pos(self)
-    }
-}
-impl<C: CoordinateSystem> NodeRef<C> for (u32, u32, u32) {
-    fn to_index(&self, grid: &GridDefinition<C>) -> GridIndex {
-        grid.index_from_coords(self.0, self.1, self.2)
-    }
-}
-impl<C: CoordinateSystem> NodeRef<C> for &(u32, u32, u32) {
-    fn to_index(&self, grid: &GridDefinition<C>) -> GridIndex {
-        grid.index_from_coords(self.0, self.1, self.2)
+impl<C: CoordinateSystem> NodeRef<C> for &C::GridPosition {
+    fn to_index(&self, grid: &impl Grid<C>) -> GridIndex {
+        grid.index_from_pos(*self)
     }
 }
 impl<C: CoordinateSystem> NodeRef<C> for GridIndex {
     #[inline]
-    fn to_index(&self, _grid: &GridDefinition<C>) -> GridIndex {
+    fn to_index(&self, _grid: &impl Grid<C>) -> GridIndex {
         *self
     }
 }
