@@ -12,7 +12,6 @@ use bevy::{ecs::reflect::ReflectComponent, reflect::Reflect};
 pub trait CoordinateSystem: Default + Clone + Sync + Send + 'static {
     type Direction: DirectionTrait;
     type GridDelta;
-    type GridPosition;
     /// Returns the [`Direction`] in this coordinate system
     fn directions(&self) -> &'static [Self::Direction];
     /// Returns the [`GridDelta`] for each direction in this coordinate system
@@ -27,7 +26,6 @@ pub struct Cartesian2D;
 impl CoordinateSystem for Cartesian2D {
     type Direction = Direction;
     type GridDelta = GridDelta;
-    type GridPosition = GridPosition;
     fn directions(&self) -> &'static [Direction] {
         CARTESIAN_2D_DIRECTIONS
     }
@@ -45,7 +43,6 @@ pub struct Cartesian3D;
 impl CoordinateSystem for Cartesian3D {
     type Direction = Direction;
     type GridDelta = GridDelta;
-    type GridPosition = GridPosition;
     fn directions(&self) -> &'static [Direction] {
         CARTESIAN_3D_DIRECTIONS
     }
