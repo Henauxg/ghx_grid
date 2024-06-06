@@ -13,8 +13,14 @@ use bevy::{ecs::reflect::ReflectComponent, reflect::Reflect};
 /// Index of a grid element
 pub type GridIndex = usize;
 
-pub trait IsCartesian: CoordinateSystem<Direction = Direction, GridDelta = GridDelta> {}
-impl<T> IsCartesian for T where T: CoordinateSystem<Direction = Direction, GridDelta = GridDelta> {}
+pub trait CartesianCoordinates:
+    CoordinateSystem<Direction = Direction, GridDelta = GridDelta>
+{
+}
+impl<T> CartesianCoordinates for T where
+    T: CoordinateSystem<Direction = Direction, GridDelta = GridDelta>
+{
+}
 
 pub trait Grid<C: CoordinateSystem>: Clone {
     fn total_size(&self) -> usize;
@@ -34,7 +40,7 @@ pub trait Grid<C: CoordinateSystem>: Clone {
     ) -> Option<GridIndex>;
 }
 
-impl<C: IsCartesian> Grid<C> for GridDefinition<C> {
+impl<C: CartesianCoordinates> Grid<C> for CartesianGrid<C> {
     /// Returns the total size of the grid
     #[inline]
     fn total_size(&self) -> usize {
@@ -89,7 +95,7 @@ impl<C: IsCartesian> Grid<C> for GridDefinition<C> {
 #[derive(Default, Debug, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "bevy", derive(Component))]
 #[cfg_attr(feature = "reflect", derive(Reflect), reflect(Component))]
-pub struct GridPosition {
+pub struct CartesianPosition {
     /// Position on the x axis
     pub x: u32,
     /// Position on the y axis
@@ -97,7 +103,7 @@ pub struct GridPosition {
     /// Position on the z axis
     pub z: u32,
 }
-impl GridPosition {
+impl CartesianPosition {
     fn get_delta_position(&self, delta: &GridDelta) -> (i64, i64, i64) {
         (
             i64::from(self.x) + i64::from(delta.dx),
@@ -116,7 +122,7 @@ impl GridPosition {
         Self { x, y, z: 0 }
     }
 }
-impl fmt::Display for GridPosition {
+impl fmt::Display for CartesianPosition {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "x: {}, y: {}, z: {}", self.x, self.y, self.z)
     }
@@ -126,7 +132,7 @@ impl fmt::Display for GridPosition {
 #[derive(Clone)]
 #[cfg_attr(feature = "bevy", derive(Component, Default))]
 #[cfg_attr(feature = "reflect", derive(Reflect), reflect(Component))]
-pub struct GridDefinition<C: CoordinateSystem> {
+pub struct CartesianGrid<C: CoordinateSystem> {
     size_x: u32,
     size_y: u32,
     size_z: u32,
@@ -138,7 +144,7 @@ pub struct GridDefinition<C: CoordinateSystem> {
     size_xy: u32,
 }
 
-impl<C: IsCartesian> fmt::Display for GridDefinition<C> {
+impl<C: CartesianCoordinates> fmt::Display for CartesianGrid<C> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
@@ -148,7 +154,7 @@ impl<C: IsCartesian> fmt::Display for GridDefinition<C> {
     }
 }
 
-impl GridDefinition<Cartesian2D> {
+impl CartesianGrid<Cartesian2D> {
     /// Creates a new grid with a [`Cartesian2D`] coordinate system
     ///
     /// Use `looping` to specify if the coordinates on an axis should loop when reaching the end of the axis.
@@ -157,7 +163,7 @@ impl GridDefinition<Cartesian2D> {
         size_y: u32,
         looping_x: bool,
         looping_y: bool,
-    ) -> GridDefinition<Cartesian2D> {
+    ) -> CartesianGrid<Cartesian2D> {
         Self::new(size_x, size_y, 1, looping_x, looping_y, false, Cartesian2D)
     }
 
@@ -173,12 +179,12 @@ impl GridDefinition<Cartesian2D> {
     ///
     ///  NO CHECK is done to verify that the given position is a valid position for this grid.
     #[inline]
-    pub fn get_index_from_pos_2d(&self, grid_position: &GridPosition) -> GridIndex {
+    pub fn get_index_from_pos_2d(&self, grid_position: &CartesianPosition) -> GridIndex {
         self.get_index_2d(grid_position.x, grid_position.y)
     }
 }
 
-impl GridDefinition<Cartesian3D> {
+impl CartesianGrid<Cartesian3D> {
     /// Creates a new grid with a [`Cartesian3D`] coordinate system
     ///
     /// Use `looping` to specify if the coordinates on an axis should loop when reaching the end of the axis.
@@ -189,7 +195,7 @@ impl GridDefinition<Cartesian3D> {
         looping_x: bool,
         looping_y: bool,
         looping_z: bool,
-    ) -> GridDefinition<Cartesian3D> {
+    ) -> CartesianGrid<Cartesian3D> {
         Self::new(
             size_x,
             size_y,
@@ -202,7 +208,7 @@ impl GridDefinition<Cartesian3D> {
     }
 }
 
-impl<C: IsCartesian> GridDefinition<C> {
+impl<C: CartesianCoordinates> CartesianGrid<C> {
     /// Creates a new [`GridDefinition`]
     pub fn new(
         size_x: u32,
@@ -212,7 +218,7 @@ impl<C: IsCartesian> GridDefinition<C> {
         looping_y: bool,
         looping_z: bool,
         coord_system: C,
-    ) -> GridDefinition<C> {
+    ) -> CartesianGrid<C> {
         Self {
             size_x,
             size_y,
@@ -274,7 +280,7 @@ impl<C: IsCartesian> GridDefinition<C> {
     ///
     /// NO CHECK is done to verify that the given `grid_position` is a valid position for this grid.
     #[inline]
-    fn index_from_pos(&self, grid_position: &GridPosition) -> GridIndex {
+    fn index_from_pos(&self, grid_position: &CartesianPosition) -> GridIndex {
         self.index_from_coords(grid_position.x, grid_position.y, grid_position.z)
     }
 
@@ -282,9 +288,9 @@ impl<C: IsCartesian> GridDefinition<C> {
     ///
     /// Panics if the index is not a valid index.
     #[inline]
-    fn pos_from_index(&self, grid_index: GridIndex) -> GridPosition {
+    fn pos_from_index(&self, grid_index: GridIndex) -> CartesianPosition {
         let index = u32::try_from(grid_index).unwrap();
-        GridPosition {
+        CartesianPosition {
             x: index % self.size_x,
             y: (index / self.size_x) % self.size_y,
             z: index / self.size_xy,
@@ -298,9 +304,9 @@ impl<C: IsCartesian> GridDefinition<C> {
     /// NO CHECK is done to verify that the given `grid_position` is a valid position for this grid.
     pub fn get_next_pos(
         &self,
-        grid_position: &GridPosition,
+        grid_position: &CartesianPosition,
         delta: &GridDelta,
-    ) -> Option<GridPosition> {
+    ) -> Option<CartesianPosition> {
         let mut next_pos = grid_position.get_delta_position(&delta);
         for (looping, pos, size) in vec![
             (self.looping_x, &mut next_pos.0, self.size_x),
@@ -323,7 +329,7 @@ impl<C: IsCartesian> GridDefinition<C> {
                 }
             }
         }
-        Some(GridPosition {
+        Some(CartesianPosition {
             x: u32::try_from(next_pos.0).unwrap(),
             y: u32::try_from(next_pos.1).unwrap(),
             z: u32::try_from(next_pos.2).unwrap(),
@@ -331,12 +337,12 @@ impl<C: IsCartesian> GridDefinition<C> {
     }
 
     /// Creates a default [`GridData`] with the size of the [`GridDefinition`] with each element value set to its default one.
-    pub fn default_grid_data<D: Default + Clone>(&self) -> GridData<C, D, GridDefinition<C>> {
+    pub fn default_grid_data<D: Default + Clone>(&self) -> GridData<C, D, CartesianGrid<C>> {
         GridData::new(self.clone(), vec![D::default(); self.total_size()])
     }
 
     /// Creates a [`GridData`] with the size of the [`GridDefinition`] with each element value being a copy of the given one.
-    pub fn new_grid_data<D: Clone>(&self, element: D) -> GridData<C, D, GridDefinition<C>> {
+    pub fn new_grid_data<D: Clone>(&self, element: D) -> GridData<C, D, CartesianGrid<C>> {
         GridData::new(self.clone(), vec![element; self.total_size()])
     }
 }
@@ -433,7 +439,7 @@ impl<C: CoordinateSystem, D: Clone, G: Grid<C>> GridData<C, D, G> {
 }
 
 /// Uses Copy if possible.
-impl<C: IsCartesian, D: Clone> GridData<C, D, GridDefinition<C>> {
+impl<C: CartesianCoordinates, D: Clone> GridData<C, D, CartesianGrid<C>> {
     /// Sets all nodes of the grix with x=`x` to `value`
     pub fn set_all_x(&mut self, x: u32, value: D) {
         let mut index = x;
@@ -495,7 +501,7 @@ impl<C: IsCartesian, D: Clone> GridData<C, D, GridDefinition<C>> {
     }
 }
 
-impl<D> GridData<Cartesian2D, D, GridDefinition<Cartesian2D>> {
+impl<D> GridData<Cartesian2D, D, CartesianGrid<Cartesian2D>> {
     /// Returns a reference to the element at this position.
     ///
     /// NO CHECK is done to verify that the given position is a valid position for this grid.
@@ -513,7 +519,7 @@ impl<D> GridData<Cartesian2D, D, GridDefinition<Cartesian2D>> {
     }
 }
 
-impl<D> GridData<Cartesian3D, D, GridDefinition<Cartesian3D>> {
+impl<D> GridData<Cartesian3D, D, CartesianGrid<Cartesian3D>> {
     /// Returns a reference to the data at this position.
     ///
     /// NO CHECK is done to verify that the given position is a valid position for this grid.

@@ -1,7 +1,4 @@
-use crate::{
-    direction::{Direction, DirectionTrait, GridDelta},
-    grid::GridPosition,
-};
+use crate::direction::{Direction, DirectionTrait, GridDelta};
 
 #[cfg(feature = "bevy")]
 use bevy::ecs::component::Component;
