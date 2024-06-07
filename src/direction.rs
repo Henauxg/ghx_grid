@@ -5,8 +5,16 @@ use bevy::ecs::component::Component;
 #[cfg(feature = "reflect")]
 use bevy::{ecs::reflect::ReflectComponent, reflect::Reflect};
 
-pub trait DirectionTrait: Into<usize> + Copy {
+// TODO Might reduce this to a u8
+/// Index of a direction
+pub type DirectionIndex = usize;
+
+// TODO, more generic
+/// Represents a direction in a grid layout
+pub trait DirectionTrait: Into<DirectionIndex> + Copy {
+    /// Returns the opposite [`Direction`]
     fn opposite(&self) -> Self;
+    /// Right-handed.
     fn rotation_basis(&self) -> &'static [Self];
 }
 

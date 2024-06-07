@@ -1,7 +1,7 @@
 use std::{fmt, marker::PhantomData, ops::Range};
 
 use crate::{
-    coordinate_system::{Cartesian2D, Cartesian3D, CoordinateSystem},
+    coordinate_system::{Cartesian2D, Cartesian3D, CartesianCoordinates, CoordinateSystem},
     direction::{Direction, GridDelta},
 };
 
@@ -10,84 +10,110 @@ use bevy::ecs::component::Component;
 #[cfg(feature = "reflect")]
 use bevy::{ecs::reflect::ReflectComponent, reflect::Reflect};
 
+// TODO Might reduce this to u32 by default, with a feature for u64
 /// Index of a grid element
 pub type GridIndex = usize;
 
-pub trait CartesianCoordinates:
-    CoordinateSystem<Direction = Direction, GridDelta = GridDelta>
-{
-}
-impl<T> CartesianCoordinates for T where
-    T: CoordinateSystem<Direction = Direction, GridDelta = GridDelta>
-{
+/// Generic trait to represent a grid
+pub trait Grid<C: CoordinateSystem>: Clone {
+    /// Position type used in this grid layout. Can be [GridIndex] if the grid elements have no position.
+    type Position;
+
+    /// Returns the [CoordinateSystem] used by this grid
+    fn coord_system(&self) -> &C;
+
+    /// Returns the maximum number of neighbours of an element in this grid
+    fn directions_count(&self) -> usize;
+
+    /// Returns the total size of the grid
+    fn total_size(&self) -> usize;
+
+    /// Will retrieve the next element's indexes in each direction.
+    ///
+    /// - `neighbours_buffer` should be allocated by the caller and its size should be >= to `directions.len()`
+    fn get_neighbours_in_all_directions(
+        &self,
+        grid_index: GridIndex,
+        neighbours_buffer: &mut Vec<Option<GridIndex>>,
+    );
+
+    /// Converts a position into an index
+    fn index_from_pos(&self, pos: &Self::Position) -> GridIndex;
+    /// Converts an index into an position
+    fn pos_from_index(&self, index: GridIndex) -> Self::Position;
 }
 
-pub trait Grid<C: CoordinateSystem>: Clone {
-    fn total_size(&self) -> usize;
-    fn directions(&self) -> &'static [C::Direction];
-    fn get_next_index_in_direction(
-        &self,
-        grid_index: GridIndex,
-        direction: C::Direction,
-    ) -> Option<GridIndex> {
-        Grid::get_index_in_direction(self, grid_index, direction, 1)
-    }
-    fn get_index_in_direction(
-        &self,
-        grid_index: GridIndex,
-        direction: C::Direction,
-        units: i32,
-    ) -> Option<GridIndex>;
+/// Generic trait to represent a grid with positions
+pub trait PositionalGrid<C: CoordinateSystem>: Grid<C> {}
+
+/// Definition of a grid
+#[derive(Clone)]
+#[cfg_attr(feature = "bevy", derive(Component, Default))]
+#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Component))]
+pub struct CartesianGrid<C: CoordinateSystem> {
+    size_x: u32,
+    size_y: u32,
+    size_z: u32,
+    looping_x: bool,
+    looping_y: bool,
+    looping_z: bool,
+    pub(crate) coord_system: C,
+    /// Cache value of `size_x` * `size_y` for index computations
+    size_xy: u32,
 }
 
 impl<C: CartesianCoordinates> Grid<C> for CartesianGrid<C> {
+    type Position = CartesianPosition;
+
     /// Returns the total size of the grid
     #[inline]
     fn total_size(&self) -> usize {
         (self.size_x * self.size_y).try_into().unwrap()
     }
 
-    /// Returns all the [`Direction`] in the [`CoordinateSystem`] used by this [`GridDefinition`]
     #[inline]
-    fn directions(&self) -> &'static [C::Direction] {
-        self.coord_system.directions()
+    fn directions_count(&self) -> usize {
+        self.coord_system.directions().len()
     }
 
-    /// Returns the index of the next position in the grid when moving 1 unit in `direction` from `grid_position`.
+    #[inline]
+    fn coord_system(&self) -> &C {
+        &self.coord_system
+    }
+
+    /// Will retrieve the next index in each direction.
     ///
-    /// Returns `None` if the destination is not in the grid.
-    ///
-    /// NO CHECK is done to verify that the given `grid_position` is a valid position for this grid.
-    fn get_next_index_in_direction(
+    /// - `neighbours_buffer` should be allocated by the caller and its size should be >= to `directions.len()`
+    fn get_neighbours_in_all_directions(
         &self,
         grid_index: GridIndex,
-        direction: Direction,
-    ) -> Option<GridIndex> {
-        let delta = &self.coord_system.deltas()[direction as usize];
-        let grid_position = &self.pos_from_index(grid_index);
-        match self.get_next_pos(grid_position, &delta) {
-            Some(next_pos) => Some(self.index_from_pos(&next_pos)),
-            None => None,
+        neighbours_buffer: &mut Vec<Option<GridIndex>>,
+    ) {
+        let pos = self.pos_from_index(grid_index);
+        for dir in self.coord_system.directions() {
+            neighbours_buffer[usize::from(*dir)] = self.get_next_index_in_direction(&pos, *dir);
         }
     }
 
-    /// Returns the index of the next position in the grid when moving `units` in `direction` from `grid_position`.
+    /// Returns a [`GridPosition`] from the index of an element in this [`GridDefinition`].
     ///
-    /// Returns `None` if the destination is not in the grid.
+    /// Panics if the index is not a valid index.
+    #[inline]
+    fn pos_from_index(&self, grid_index: GridIndex) -> CartesianPosition {
+        let index = u32::try_from(grid_index).unwrap();
+        CartesianPosition {
+            x: index % self.size_x,
+            y: (index / self.size_x) % self.size_y,
+            z: index / self.size_xy,
+        }
+    }
+
+    /// Returns the index from a grid position.
     ///
     /// NO CHECK is done to verify that the given `grid_position` is a valid position for this grid.
-    fn get_index_in_direction(
-        &self,
-        grid_index: GridIndex,
-        direction: Direction,
-        units: i32,
-    ) -> Option<GridIndex> {
-        let delta = self.coord_system.deltas()[direction as usize].clone() * units;
-        let grid_position = &self.pos_from_index(grid_index);
-        match self.get_next_pos(grid_position, &delta) {
-            Some(next_pos) => Some(self.index_from_pos(&next_pos)),
-            None => None,
-        }
+    #[inline]
+    fn index_from_pos(&self, grid_position: &CartesianPosition) -> GridIndex {
+        self.index_from_coords(grid_position.x, grid_position.y, grid_position.z)
     }
 }
 
@@ -126,22 +152,6 @@ impl fmt::Display for CartesianPosition {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "x: {}, y: {}, z: {}", self.x, self.y, self.z)
     }
-}
-
-/// Definition of a grid
-#[derive(Clone)]
-#[cfg_attr(feature = "bevy", derive(Component, Default))]
-#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Component))]
-pub struct CartesianGrid<C: CoordinateSystem> {
-    size_x: u32,
-    size_y: u32,
-    size_z: u32,
-    looping_x: bool,
-    looping_y: bool,
-    looping_z: bool,
-    pub(crate) coord_system: C,
-    /// Cache value of `size_x` * `size_y` for index computations
-    size_xy: u32,
 }
 
 impl<C: CartesianCoordinates> fmt::Display for CartesianGrid<C> {
@@ -294,6 +304,41 @@ impl<C: CartesianCoordinates> CartesianGrid<C> {
             x: index % self.size_x,
             y: (index / self.size_x) % self.size_y,
             z: index / self.size_xy,
+        }
+    }
+
+    /// Returns the index of the next position in the grid when moving 1 unit in `direction` from `grid_position`.
+    ///
+    /// Returns `None` if the destination is not in the grid.
+    ///
+    /// NO CHECK is done to verify that the given `grid_position` is a valid position for this grid.
+    pub fn get_next_index_in_direction(
+        &self,
+        grid_position: &CartesianPosition,
+        direction: Direction,
+    ) -> Option<GridIndex> {
+        let delta = &self.coord_system.deltas()[direction as usize];
+        match self.get_next_pos(grid_position, &delta) {
+            Some(next_pos) => Some(self.index_from_pos(&next_pos)),
+            None => None,
+        }
+    }
+
+    /// Returns the index of the next position in the grid when moving `units` in `direction` from `grid_position`.
+    ///
+    /// Returns `None` if the destination is not in the grid.
+    ///
+    /// NO CHECK is done to verify that the given `grid_position` is a valid position for this grid.
+    pub fn get_index_in_direction(
+        &self,
+        grid_position: &CartesianPosition,
+        direction: Direction,
+        units: i32,
+    ) -> Option<GridIndex> {
+        let delta = self.coord_system.deltas()[direction as usize].clone() * units;
+        match self.get_next_pos(grid_position, &delta) {
+            Some(next_pos) => Some(self.index_from_pos(&next_pos)),
+            None => None,
         }
     }
 
@@ -548,3 +593,4 @@ impl<C: CoordinateSystem> NodeRef<C> for GridIndex {
         *self
     }
 }
+// TODO Impl NodeRef for CartesianPosition in CartesianCoordinates. Might need to newtype GridIndex.

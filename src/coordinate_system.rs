@@ -7,12 +7,20 @@ use bevy::{ecs::reflect::ReflectComponent, reflect::Reflect};
 
 /// Represents a coordinate system
 pub trait CoordinateSystem: Default + Clone + Sync + Send + 'static {
+    /// [DirectionTrait] type used in this system
     type Direction: DirectionTrait;
-    type GridDelta;
+
     /// Returns the [`Direction`] in this coordinate system
     fn directions(&self) -> &'static [Self::Direction];
+
+    /// Returns the total count of directions
+    fn directions_count(&self) -> usize;
+}
+
+/// Specific case for a cartesian coordinate system
+pub trait CartesianCoordinates: CoordinateSystem<Direction = Direction> {
     /// Returns the [`GridDelta`] for each direction in this coordinate system
-    fn deltas(&self) -> &'static [Self::GridDelta];
+    fn deltas(&self) -> &'static [GridDelta];
 }
 
 /// Right-handed 2d Cartesian coordinate system: 4 directions
@@ -22,11 +30,19 @@ pub trait CoordinateSystem: Default + Clone + Sync + Send + 'static {
 pub struct Cartesian2D;
 impl CoordinateSystem for Cartesian2D {
     type Direction = Direction;
-    type GridDelta = GridDelta;
+
+    #[inline]
     fn directions(&self) -> &'static [Direction] {
         CARTESIAN_2D_DIRECTIONS
     }
 
+    #[inline]
+    fn directions_count(&self) -> usize {
+        CARTESIAN_2D_DIRECTIONS.len()
+    }
+}
+impl CartesianCoordinates for Cartesian2D {
+    #[inline]
     fn deltas(&self) -> &'static [GridDelta] {
         CARTESIAN_2D_DELTAS
     }
@@ -39,11 +55,19 @@ impl CoordinateSystem for Cartesian2D {
 pub struct Cartesian3D;
 impl CoordinateSystem for Cartesian3D {
     type Direction = Direction;
-    type GridDelta = GridDelta;
+
+    #[inline]
     fn directions(&self) -> &'static [Direction] {
         CARTESIAN_3D_DIRECTIONS
     }
 
+    #[inline]
+    fn directions_count(&self) -> usize {
+        CARTESIAN_3D_DIRECTIONS.len()
+    }
+}
+impl CartesianCoordinates for Cartesian3D {
+    #[inline]
     fn deltas(&self) -> &'static [GridDelta] {
         CARTESIAN_3D_DELTAS
     }
