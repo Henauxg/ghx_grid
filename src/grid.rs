@@ -1,4 +1,4 @@
-use std::{fmt, marker::PhantomData, ops::Range};
+use std::{fmt, fmt::Debug, marker::PhantomData, ops::Range};
 
 use crate::{
     coordinate_system::{Cartesian2D, Cartesian3D, CartesianCoordinates, CoordinateSystem},
@@ -17,7 +17,7 @@ pub type GridIndex = usize;
 /// Generic trait to represent a grid
 pub trait Grid<C: CoordinateSystem>: Clone {
     /// Position type used in this grid layout. Can be [GridIndex] if the grid elements have no position.
-    type Position;
+    type Position: Debug;
 
     /// Returns the [CoordinateSystem] used by this grid
     fn coord_system(&self) -> &C;
