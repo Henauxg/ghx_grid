@@ -1,6 +1,6 @@
 [package]
 name = "ghx_grid"
-version = "0.2.0"
+version = "0.3.0"
 description = "2D & 3D grid structures & utilities"
 repository = "https://github.com/Henauxg/ghx_grid"
 documentation = "https://docs.rs/ghx_grid"
