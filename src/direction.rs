@@ -104,34 +104,3 @@ pub(crate) const Z_NEG_AXIS: &'static [Direction] = &[
     Direction::YBackward,
     Direction::XBackward,
 ];
-
-/// Represents a displacement on a grid
-#[derive(Default, Debug, Clone, Copy, PartialEq, Eq)]
-#[cfg_attr(feature = "bevy", derive(Component))]
-#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Component))]
-pub struct GridDelta {
-    /// Amount of movement on the X axis
-    pub dx: i32,
-    /// Amount of movement on the Y axis
-    pub dy: i32,
-    /// Amount of movement on the Z axis
-    pub dz: i32,
-}
-
-impl GridDelta {
-    /// Creates a new [`GridDelta`]
-    pub fn new(dx: i32, dy: i32, dz: i32) -> Self {
-        Self { dx, dy, dz }
-    }
-}
-
-impl std::ops::Mul<i32> for GridDelta {
-    type Output = GridDelta;
-    fn mul(self, rhs: i32) -> GridDelta {
-        GridDelta {
-            dx: self.dx * rhs,
-            dy: self.dy * rhs,
-            dz: self.dz * rhs,
-        }
-    }
-}

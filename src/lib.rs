@@ -10,3 +10,6 @@ pub mod coordinate_system;
 
 /// Defines grid structures
 pub mod grid;
+
+/// Defines cartesian coordinates and grids
+pub mod cartesian;
