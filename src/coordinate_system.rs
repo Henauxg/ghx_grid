@@ -1,4 +1,4 @@
-use crate::direction::{Direction, GridDelta};
+use crate::direction::{Direction, DirectionTrait, GridDelta};
 
 #[cfg(feature = "bevy")]
 use bevy::ecs::component::Component;
@@ -7,8 +7,18 @@ use bevy::{ecs::reflect::ReflectComponent, reflect::Reflect};
 
 /// Represents a coordinate system
 pub trait CoordinateSystem: Default + Clone + Sync + Send + 'static {
+    /// [DirectionTrait] type used in this system
+    type Direction: DirectionTrait;
+
     /// Returns the [`Direction`] in this coordinate system
-    fn directions(&self) -> &'static [Direction];
+    fn directions(&self) -> &'static [Self::Direction];
+
+    /// Returns the total count of directions
+    fn directions_count(&self) -> usize;
+}
+
+/// Specific case for a cartesian coordinate system
+pub trait CartesianCoordinates: CoordinateSystem<Direction = Direction> {
     /// Returns the [`GridDelta`] for each direction in this coordinate system
     fn deltas(&self) -> &'static [GridDelta];
 }
@@ -19,10 +29,20 @@ pub trait CoordinateSystem: Default + Clone + Sync + Send + 'static {
 #[cfg_attr(feature = "reflect", derive(Reflect), reflect(Component))]
 pub struct Cartesian2D;
 impl CoordinateSystem for Cartesian2D {
+    type Direction = Direction;
+
+    #[inline]
     fn directions(&self) -> &'static [Direction] {
         CARTESIAN_2D_DIRECTIONS
     }
 
+    #[inline]
+    fn directions_count(&self) -> usize {
+        CARTESIAN_2D_DIRECTIONS.len()
+    }
+}
+impl CartesianCoordinates for Cartesian2D {
+    #[inline]
     fn deltas(&self) -> &'static [GridDelta] {
         CARTESIAN_2D_DELTAS
     }
@@ -34,10 +54,20 @@ impl CoordinateSystem for Cartesian2D {
 #[cfg_attr(feature = "reflect", derive(Reflect), reflect(Component))]
 pub struct Cartesian3D;
 impl CoordinateSystem for Cartesian3D {
+    type Direction = Direction;
+
+    #[inline]
     fn directions(&self) -> &'static [Direction] {
         CARTESIAN_3D_DIRECTIONS
     }
 
+    #[inline]
+    fn directions_count(&self) -> usize {
+        CARTESIAN_3D_DIRECTIONS.len()
+    }
+}
+impl CartesianCoordinates for Cartesian3D {
+    #[inline]
     fn deltas(&self) -> &'static [GridDelta] {
         CARTESIAN_3D_DELTAS
     }

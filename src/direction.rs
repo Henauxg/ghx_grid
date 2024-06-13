@@ -5,6 +5,19 @@ use bevy::ecs::component::Component;
 #[cfg(feature = "reflect")]
 use bevy::{ecs::reflect::ReflectComponent, reflect::Reflect};
 
+// TODO Might reduce this to a u8
+/// Index of a direction
+pub type DirectionIndex = usize;
+
+// TODO, more generic
+/// Represents a direction in a grid layout
+pub trait DirectionTrait: Into<DirectionIndex> + Copy {
+    /// Returns the opposite [`Direction`]
+    fn opposite(&self) -> Self;
+    /// Right-handed.
+    fn rotation_basis(&self) -> &'static [Self];
+}
+
 /// Represents an oriented axis of a coordinate system
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "bevy", derive(Component))]
@@ -24,9 +37,9 @@ pub enum Direction {
     /// Z- axis
     ZBackward = 5,
 }
-impl Direction {
+impl DirectionTrait for Direction {
     /// Returns the opposite [`Direction`]
-    pub fn opposite(&self) -> Direction {
+    fn opposite(&self) -> Direction {
         match self {
             Direction::XForward => Direction::XBackward,
             Direction::XBackward => Direction::XForward,
@@ -38,7 +51,7 @@ impl Direction {
     }
 
     /// Right-handed.
-    pub fn rotation_basis(&self) -> &'static [Direction] {
+    fn rotation_basis(&self) -> &'static [Direction] {
         match self {
             Direction::XForward => X_POS_AXIS,
             Direction::XBackward => X_NEG_AXIS,
@@ -47,6 +60,11 @@ impl Direction {
             Direction::ZForward => Z_POS_AXIS,
             Direction::ZBackward => Z_NEG_AXIS,
         }
+    }
+}
+impl From<Direction> for usize {
+    fn from(item: Direction) -> Self {
+        item as Self
     }
 }
 
