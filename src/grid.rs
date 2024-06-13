@@ -43,9 +43,6 @@ pub trait Grid<C: CoordinateSystem>: Clone {
     fn pos_from_index(&self, index: GridIndex) -> Self::Position;
 }
 
-/// Generic trait to represent a grid with positions
-pub trait PositionalGrid<C: CoordinateSystem>: Grid<C> {}
-
 /// Definition of a grid
 #[derive(Clone)]
 #[cfg_attr(feature = "bevy", derive(Component, Default))]
