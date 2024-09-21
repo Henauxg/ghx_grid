@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.4.0 (TBD)
+
+- Update to use Bevy 0.14
+
 ## Version 0.3.1 (2024-09-21)
 
 - Fix the `reflect` feature
