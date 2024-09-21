@@ -25,7 +25,7 @@ Structures and utilities to manipulate 2d & 3d grid data.
  | 0.2-0.3      | 0.13     |
  | 0.1          | 0.12     |
 
-See the [`bevy_ghx_grid`](bevy_ghx_grid/README.md) crate which uses and exposes `ghx_grid`, as well as additional plugins and utilities dedicated to [`Bevy`](https://github.com/bevyengine/bevy).
+See the [`bevy_ghx_grid`](https://github.com/Henauxg/bevy_ghx_grid) crate which uses and exposes `ghx_grid`, as well as additional plugins and utilities dedicated to [`Bevy`](https://github.com/bevyengine/bevy).
 
 ## Misc
 
