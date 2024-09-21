@@ -10,6 +10,11 @@ use super::coordinates::{
     Cartesian2D, Cartesian3D, CartesianCoordinates, CartesianPosition, GridDelta,
 };
 
+#[cfg(feature = "bevy")]
+use bevy::ecs::component::Component;
+#[cfg(feature = "reflect")]
+use bevy::{ecs::reflect::ReflectComponent, reflect::Reflect};
+
 /// Definition of a grid
 #[derive(Clone)]
 #[cfg_attr(feature = "bevy", derive(Component, Default))]

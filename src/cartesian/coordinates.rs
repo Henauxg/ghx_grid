@@ -2,6 +2,11 @@ use std::fmt;
 
 use crate::{coordinate_system::CoordinateSystem, direction::Direction};
 
+#[cfg(feature = "bevy")]
+use bevy::ecs::component::Component;
+#[cfg(feature = "reflect")]
+use bevy::{ecs::reflect::ReflectComponent, reflect::Reflect};
+
 /// Right-handed 2d Cartesian coordinate system: 4 directions
 #[derive(Default, Debug, Clone, Copy)]
 #[cfg_attr(feature = "bevy", derive(Component))]

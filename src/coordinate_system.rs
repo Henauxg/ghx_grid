@@ -1,10 +1,5 @@
 use crate::direction::DirectionTrait;
 
-#[cfg(feature = "bevy")]
-use bevy::ecs::component::Component;
-#[cfg(feature = "reflect")]
-use bevy::{ecs::reflect::ReflectComponent, reflect::Reflect};
-
 /// Represents a coordinate system
 pub trait CoordinateSystem: Default + Clone + Sync + Send + 'static {
     /// [DirectionTrait] type used in this system

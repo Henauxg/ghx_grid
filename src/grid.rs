@@ -43,6 +43,7 @@ pub trait Grid<C: CoordinateSystem>: Clone {
 /// Holds a [`Grid`] and generic data in a linear buffer that can be accessed through the grid definition to represent the grid content.
 #[derive(Clone)]
 #[cfg_attr(feature = "bevy", derive(Component, Default))]
+#[cfg_attr(feature = "reflect", derive(Reflect), reflect(Component))]
 pub struct GridData<C, D, G>
 where
     C: CoordinateSystem,
