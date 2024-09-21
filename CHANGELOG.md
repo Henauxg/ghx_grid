@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.3.1 (2024-09-21)
+
+- Fix the `reflect` feature
+
 ## Version 0.3.0 (2024-06-13)
 
 Support more grid types than just cartesian grids:
