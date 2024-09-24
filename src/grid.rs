@@ -51,6 +51,7 @@ where
 {
     grid: G,
     data: Vec<D>,
+    #[cfg_attr(feature = "reflect", reflect(ignore))]
     _phantom: PhantomData<C>,
 }
 
