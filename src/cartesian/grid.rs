@@ -231,7 +231,7 @@ impl<C: CartesianCoordinates> CartesianGrid<C> {
     ///
     /// NO CHECK is done to verify that the given `grid_position` is a valid position for this grid.
     #[inline]
-    fn index_from_pos(&self, grid_position: &CartesianPosition) -> GridIndex {
+    pub fn index_from_pos(&self, grid_position: &CartesianPosition) -> GridIndex {
         self.index_from_coords(grid_position.x, grid_position.y, grid_position.z)
     }
 
@@ -239,7 +239,7 @@ impl<C: CartesianCoordinates> CartesianGrid<C> {
     ///
     /// Panics if the index is not a valid index.
     #[inline]
-    fn pos_from_index(&self, grid_index: GridIndex) -> CartesianPosition {
+    pub fn pos_from_index(&self, grid_index: GridIndex) -> CartesianPosition {
         let index = u32::try_from(grid_index).unwrap();
         CartesianPosition {
             x: index % self.size_x,
