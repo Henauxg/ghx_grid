@@ -3,6 +3,12 @@
 ## Version 0.4.0 (TBD)
 
 - Update to use Bevy 0.14
+- Ignore `PhantomData` with the `reflect` feature
+- Add a `serde` feature to derive `Serialize` and `Deserialize` on most types
+- Derive `Hash` on `CartesianPosition`
+- Set `index_from_pos` and `pos_from_index` to `pub` on `CartesianGrid`
+- Add `get_from_pos` and `get_from_pos_mut` to Cartesian `GridData`
+
 
 ## Version 0.3.1 (2024-09-21)
 
