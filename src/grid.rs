@@ -7,6 +7,9 @@ use bevy::ecs::component::Component;
 #[cfg(feature = "reflect")]
 use bevy::{ecs::reflect::ReflectComponent, reflect::Reflect};
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 // TODO Might reduce this to u32 by default, with a feature for u64
 /// Index of a grid element
 pub type GridIndex = usize;
@@ -44,6 +47,7 @@ pub trait Grid<C: CoordinateSystem>: Clone {
 #[derive(Clone)]
 #[cfg_attr(feature = "bevy", derive(Component, Default))]
 #[cfg_attr(feature = "reflect", derive(Reflect), reflect(Component))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct GridData<C, D, G>
 where
     C: CoordinateSystem,

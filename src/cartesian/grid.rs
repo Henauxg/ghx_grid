@@ -15,10 +15,14 @@ use bevy::ecs::component::Component;
 #[cfg(feature = "reflect")]
 use bevy::{ecs::reflect::ReflectComponent, reflect::Reflect};
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 /// Definition of a grid
 #[derive(Clone)]
 #[cfg_attr(feature = "bevy", derive(Component, Default))]
 #[cfg_attr(feature = "reflect", derive(Reflect), reflect(Component))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct CartesianGrid<C: CoordinateSystem> {
     size_x: u32,
     size_y: u32,

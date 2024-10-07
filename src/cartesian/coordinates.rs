@@ -7,10 +7,14 @@ use bevy::ecs::component::Component;
 #[cfg(feature = "reflect")]
 use bevy::{ecs::reflect::ReflectComponent, reflect::Reflect};
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 /// Right-handed 2d Cartesian coordinate system: 4 directions
 #[derive(Default, Debug, Clone, Copy)]
 #[cfg_attr(feature = "bevy", derive(Component))]
 #[cfg_attr(feature = "reflect", derive(Reflect), reflect(Component))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Cartesian2D;
 impl CoordinateSystem for Cartesian2D {
     type Direction = Direction;
@@ -36,6 +40,7 @@ impl CartesianCoordinates for Cartesian2D {
 #[derive(Default, Debug, Clone, Copy)]
 #[cfg_attr(feature = "bevy", derive(Component))]
 #[cfg_attr(feature = "reflect", derive(Reflect), reflect(Component))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Cartesian3D;
 impl CoordinateSystem for Cartesian3D {
     type Direction = Direction;
@@ -147,6 +152,7 @@ pub const CARTESIAN_3D_DELTAS: &'static [GridDelta] = &[
 #[derive(Default, Debug, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "bevy", derive(Component))]
 #[cfg_attr(feature = "reflect", derive(Reflect), reflect(Component))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct GridDelta {
     /// Amount of movement on the X axis
     pub dx: i32,
@@ -181,9 +187,10 @@ pub trait CartesianCoordinates: CoordinateSystem<Direction = Direction> {
 }
 
 /// Represents a position in a grid in a practical format
-#[derive(Default, Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Default, Hash, Debug, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "bevy", derive(Component))]
 #[cfg_attr(feature = "reflect", derive(Reflect), reflect(Component))]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct CartesianPosition {
     /// Position on the x axis
     pub x: u32,
