@@ -118,6 +118,12 @@ where
     pub fn nodes(&self) -> &Vec<D> {
         &self.data
     }
+
+    /// Returns a range of all the [GridIndex] in this grid.
+    #[inline]
+    pub fn indexes(&self) -> std::ops::Range<usize> {
+        0..self.grid.total_size()
+    }
 }
 
 impl<C: CoordinateSystem, D: Clone, G: Grid<C>> GridData<C, D, G> {
