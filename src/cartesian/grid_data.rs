@@ -134,6 +134,7 @@ impl<D> GridData<Cartesian2D, D, CartesianGrid<Cartesian2D>> {
     /// Flood fill starting at `from`, applying `action` to all nodes for which `conditon` returns true.
     ///
     /// - `conditon`should be true for `from` else the function returns immediately.
+    /// - If present `pre_allocated_queue` will be cleared before running the algorithm (but existing allocation will be kept)
     ///
     /// Based on https://en.wikipedia.org/wiki/Flood_fill#Further_potential_optimizations but working with looping grids. Some more optimizations may be taken from https://en.wikipedia.org/wiki/Flood_fill#Span_filling once adapted to looping grids.
     ///
@@ -147,7 +148,10 @@ impl<D> GridData<Cartesian2D, D, CartesianGrid<Cartesian2D>> {
     ) {
         // We do not add to the queue if a node is already set. If not set, set and add to queue (to avoid queuing nodes multiple times)
         let mut queue = match pre_allocated_queue {
-            Some(q) => q,
+            Some(q) => {
+                q.clear();
+                q
+            }
             None => &mut VecDeque::with_capacity(10),
         };
 
