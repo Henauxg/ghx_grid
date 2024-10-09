@@ -143,10 +143,13 @@ impl<D> GridData<Cartesian2D, D, CartesianGrid<Cartesian2D>> {
         from: impl Into<CartesianPosition>,
         mut condition: CO,
         mut action: AC,
+        pre_allocated_queue: Option<&mut VecDeque<CartesianPosition>>,
     ) {
-        // TODO Prealloc/capacity
-        // Do not add to queue if already set. If not set, set and add to queue (to avoid queing nodes multiple times)
-        let mut queue = VecDeque::new();
+        // We do not add to the queue if a node is already set. If not set, set and add to queue (to avoid queuing nodes multiple times)
+        let mut queue = match pre_allocated_queue {
+            Some(q) => q,
+            None => &mut VecDeque::with_capacity(10),
+        };
 
         let initial_pos = from.into();
         let initial_node = self.get_mut_from_pos(&initial_pos);
