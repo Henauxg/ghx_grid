@@ -5,6 +5,24 @@ use super::{
     grid::CartesianGrid,
 };
 
+impl<C: CartesianCoordinates, D> GridData<C, D, CartesianGrid<C>> {
+    /// Returns a reference to the element at this position.
+    ///
+    /// NO CHECK is done to verify that the given position is a valid position for this grid.
+    #[inline]
+    pub fn get_from_pos(&self, pos: &CartesianPosition) -> &D {
+        &self.get(self.grid().index_from_pos(pos))
+    }
+
+    /// Returns a reference to the element at this position.
+    ///
+    /// NO CHECK is done to verify that the given position is a valid position for this grid.
+    #[inline]
+    pub fn get_mut_from_pos(&mut self, pos: &CartesianPosition) -> &mut D {
+        self.get_mut(self.grid().index_from_pos(pos))
+    }
+}
+
 /// Uses Copy if possible.
 impl<C: CartesianCoordinates, D: Clone> GridData<C, D, CartesianGrid<C>> {
     /// Sets all nodes of the grix with x=`x` to `value`
@@ -65,22 +83,6 @@ impl<C: CartesianCoordinates, D: Clone> GridData<C, D, CartesianGrid<C>> {
             self.set_raw(index as usize, value.clone());
             index += 1;
         }
-    }
-
-    /// Returns a reference to the element at this position.
-    ///
-    /// NO CHECK is done to verify that the given position is a valid position for this grid.
-    #[inline]
-    pub fn get_from_pos(&self, pos: &CartesianPosition) -> &D {
-        &self.get(self.grid().index_from_pos(pos))
-    }
-
-    /// Returns a reference to the element at this position.
-    ///
-    /// NO CHECK is done to verify that the given position is a valid position for this grid.
-    #[inline]
-    pub fn get_mut_from_pos(&mut self, pos: &CartesianPosition) -> &mut D {
-        self.get_mut(self.grid().index_from_pos(pos))
     }
 }
 
