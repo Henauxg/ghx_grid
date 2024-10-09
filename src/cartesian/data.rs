@@ -1,7 +1,11 @@
-use crate::grid::GridData;
+use std::collections::VecDeque;
+
+use crate::{direction::Direction, grid::GridData};
 
 use super::{
-    coordinates::{Cartesian2D, Cartesian3D, CartesianCoordinates, CartesianPosition},
+    coordinates::{
+        Cartesian2D, Cartesian3D, CartesianCoordinates, CartesianPosition, CARTESIAN_2D_DELTAS,
+    },
     grid::CartesianGrid,
 };
 
@@ -101,6 +105,85 @@ impl<D> GridData<Cartesian2D, D, CartesianGrid<Cartesian2D>> {
     #[inline]
     pub fn get_2d_mut(&mut self, x: u32, y: u32) -> &mut D {
         self.get_mut(self.grid().get_index_2d(x, y))
+    }
+
+    fn explore_vertical<C: FnMut(&D) -> bool, A: FnMut(&mut D)>(
+        &mut self,
+        queue: &mut VecDeque<CartesianPosition>,
+        from: &CartesianPosition,
+        condition: &mut C,
+        action: &mut A,
+    ) {
+        for vertical_dir in vec![Direction::YForward, Direction::YBackward].iter() {
+            if let Some(vertical_node_pos) = self
+                .grid()
+                .get_next_pos(&from, &CARTESIAN_2D_DELTAS[*vertical_dir as usize])
+            {
+                let node_data = self.get_mut_from_pos(&vertical_node_pos);
+                if condition(node_data) {
+                    action(node_data);
+                    queue.push_back(vertical_node_pos);
+                }
+            }
+        }
+    }
+
+    // TODO Extend to Cartesian 3D
+    // TODO See NodeRef for starting position
+
+    /// Flood fill starting at `from`, applying `action` to all nodes for which `conditon` returns true.
+    ///
+    /// - `conditon`should be true for `from` else the function returns immediately.
+    ///
+    /// Based on https://en.wikipedia.org/wiki/Flood_fill#Further_potential_optimizations but working with looping grids. Some more optimizations may be taken from https://en.wikipedia.org/wiki/Flood_fill#Span_filling once adapted to looping grids.
+    ///
+    /// /!\ This uses 'conditon'+'action' as a way to not backtrack. If the effect of 'action' does not disables 'condition', this will loop !
+    pub fn flood_fill<CO: FnMut(&D) -> bool, AC: FnMut(&mut D)>(
+        &mut self,
+        from: impl Into<CartesianPosition>,
+        mut condition: CO,
+        mut action: AC,
+    ) {
+        // TODO Prealloc/capacity
+        // Do not add to queue if already set. If not set, set and add to queue (to avoid queing nodes multiple times)
+        let mut queue = VecDeque::new();
+
+        let initial_pos = from.into();
+        let initial_node = self.get_mut_from_pos(&initial_pos);
+        if !condition(initial_node) {
+            return;
+        } else {
+            action(initial_node);
+            queue.push_back(initial_pos);
+        }
+
+        while let Some(pos) = queue.pop_front() {
+            self.explore_vertical(&mut queue, &pos, &mut condition, &mut action);
+
+            for horizontal_dir in vec![Direction::XBackward, Direction::XForward].iter() {
+                let mut x_pos = pos;
+
+                // Use size_x as an upper limit of the iteration count
+                for _ in 0..self.grid().size_x() {
+                    // TODO Delta accessor helper: .delta(Direction::YForward)
+                    if let Some(next_node_pos) = self
+                        .grid()
+                        .get_next_pos(&x_pos, &CARTESIAN_2D_DELTAS[*horizontal_dir as usize])
+                    {
+                        let node_data = self.get_mut_from_pos(&next_node_pos);
+                        if condition(node_data) {
+                            action(node_data);
+                            self.explore_vertical(&mut queue, &x_pos, &mut condition, &mut action);
+                            x_pos = next_node_pos;
+                        } else {
+                            break;
+                        }
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
     }
 }
 
