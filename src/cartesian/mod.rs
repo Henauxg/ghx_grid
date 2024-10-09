@@ -5,4 +5,4 @@ pub mod coordinates;
 pub mod grid;
 
 /// Cartesian implementations of [`crate::grid::GridData`]
-pub mod data;
+pub mod grid_data;
