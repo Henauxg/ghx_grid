@@ -283,6 +283,23 @@ impl<C: CartesianCoordinates> CartesianGrid<C> {
         }
     }
 
+    /// Returns the the next position in the grid when moving 1 unit in `direction` from `grid_position`.
+    ///
+    /// Returns `None` if the destination is not in the grid.
+    ///
+    /// NO CHECK is done to verify that the given `grid_position` is a valid position for this grid.
+    pub fn get_next_pos_in_direction(
+        &self,
+        grid_position: &CartesianPosition,
+        direction: Direction,
+    ) -> Option<CartesianPosition> {
+        let delta = &self.coord_system.deltas()[direction as usize];
+        match self.get_next_pos(grid_position, &delta) {
+            Some(next_pos) => Some(next_pos),
+            None => None,
+        }
+    }
+
     /// Returns the next position in the grid when moving `delta` unit(s) in `direction` from `grid_position`.
     ///
     /// Returns `None` if the destination is not in the grid.
