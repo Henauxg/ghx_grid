@@ -3,9 +3,7 @@ use std::collections::VecDeque;
 use crate::{direction::Direction, grid::GridData};
 
 use super::{
-    coordinates::{
-        Cartesian2D, Cartesian3D, CartesianCoordinates, CartesianPosition, CARTESIAN_2D_DELTAS,
-    },
+    coordinates::{Cartesian2D, Cartesian3D, CartesianCoordinates, CartesianPosition},
     grid::CartesianGrid,
 };
 
@@ -115,9 +113,8 @@ impl<D> GridData<Cartesian2D, D, CartesianGrid<Cartesian2D>> {
         action: &mut A,
     ) {
         for vertical_dir in vec![Direction::YForward, Direction::YBackward].iter() {
-            if let Some(vertical_node_pos) = self
-                .grid()
-                .get_next_pos(&from, &CARTESIAN_2D_DELTAS[*vertical_dir as usize])
+            if let Some(vertical_node_pos) =
+                self.grid().get_next_pos_in_direction(&from, *vertical_dir)
             {
                 let node_data = self.get_mut_from_pos(&vertical_node_pos);
                 if condition(node_data) {
@@ -167,7 +164,7 @@ impl<D> GridData<Cartesian2D, D, CartesianGrid<Cartesian2D>> {
         while let Some(pos) = queue.pop_front() {
             self.explore_vertical(&mut queue, &pos, &mut condition, &mut action);
 
-            for horizontal_dir in vec![Direction::XBackward, Direction::XForward].iter() {
+            for &horizontal_dir in vec![Direction::XBackward, Direction::XForward].iter() {
                 let mut x_pos = pos;
 
                 // Use size_x as an upper limit of the iteration count
@@ -175,12 +172,17 @@ impl<D> GridData<Cartesian2D, D, CartesianGrid<Cartesian2D>> {
                     // TODO Delta accessor helper: .delta(Direction::YForward)
                     if let Some(next_node_pos) = self
                         .grid()
-                        .get_next_pos(&x_pos, &CARTESIAN_2D_DELTAS[*horizontal_dir as usize])
+                        .get_next_pos_in_direction(&x_pos, horizontal_dir)
                     {
                         let node_data = self.get_mut_from_pos(&next_node_pos);
                         if condition(node_data) {
                             action(node_data);
-                            self.explore_vertical(&mut queue, &x_pos, &mut condition, &mut action);
+                            self.explore_vertical(
+                                &mut queue,
+                                &next_node_pos,
+                                &mut condition,
+                                &mut action,
+                            );
                             x_pos = next_node_pos;
                         } else {
                             break;
