@@ -7,8 +7,11 @@
 - Added a `serde` feature to derive `Serialize` and `Deserialize` on most types
 - Derive `Hash` on `CartesianPosition`
 - Set `index_from_pos` and `pos_from_index` to `pub` on `CartesianGrid`
-- Added `get_from_pos` and `get_from_pos_mut` to Cartesian `GridData`
+- Removed `nodes` method on `GridData` 
 - Added `indexes` method to `GridData`
+- Added `iter` and `iter_mut` to `GridData`
+- Added `get_from_pos` and `get_from_pos_mut` to Cartesian `GridData`
+- Added a `flood_fill` algorithm for `Cartesian2D` `GridData`
 
 ## Version 0.3.1 (2024-09-21)
 
