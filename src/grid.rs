@@ -1,4 +1,8 @@
-use std::{fmt::Debug, marker::PhantomData};
+use std::{
+    fmt::Debug,
+    marker::PhantomData,
+    slice::{Iter, IterMut},
+};
 
 use crate::coordinate_system::CoordinateSystem;
 
@@ -113,10 +117,16 @@ where
         &mut self.data[index]
     }
 
-    /// Returns a reference to the underlying data buffer.
+    /// Returns an iterator over all the elements.
     #[inline]
-    pub fn nodes(&self) -> &Vec<D> {
-        &self.data
+    pub fn iter(&self) -> Iter<'_, D> {
+        self.data.iter()
+    }
+
+    /// Returns an iterator over all the elements that allows modifying each value.
+    #[inline]
+    pub fn iter_mut(&mut self) -> IterMut<'_, D> {
+        self.data.iter_mut()
     }
 
     /// Returns a range of all the [GridIndex] in this grid.
