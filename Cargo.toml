@@ -1,6 +1,6 @@
 [package]
 name = "ghx_grid"
-version = "0.4.1"
+version = "0.5.0"
 description = "2D & 3D grid structures & utilities"
 repository = "https://github.com/Henauxg/ghx_grid"
 documentation = "https://docs.rs/ghx_grid"
@@ -25,4 +25,4 @@ reflect = ["bevy"]
 serde = { version = "1.0.197", optional = true, features = ["derive"] }
 
 # Only enabled when the "bevy" feature is enabled
-bevy = { version = "0.14.0", optional = true, default-features = false }
+bevy = { version = "0.15.0-rc.1", optional = true, default-features = false }

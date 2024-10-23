@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.5.0 (TBD)
+
+- Update to use Bevy 0.15
+
 ## Version 0.4.1 (2024-11-07)
 
 - Fixed the `total_size` implementation in `CartesianGrid`
