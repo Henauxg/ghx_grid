@@ -12,15 +12,17 @@ readme = "README.md"
 
 [features]
 default = ["serde"]
+serde = ["dep:serde"]
+
 # Enables some Bevy trait derives
 bevy = ["dep:bevy"]
 # Enables more Bevy trait derives for reflection
 reflect = ["bevy"]
-serde = ["dep:serde"]
 
 [dependencies]
 
-# Only enabled when the "bevy" feature is enabled
-bevy = { version = "0.14.0", optional = true, default-features = false }
 # Only enabled when the "serde" feature is enabled
 serde = { version = "1.0.197", optional = true, features = ["derive"] }
+
+# Only enabled when the "bevy" feature is enabled
+bevy = { version = "0.14.0", optional = true, default-features = false }

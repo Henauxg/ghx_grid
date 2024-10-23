@@ -1,10 +1,9 @@
 # Changelog
 
-## Version 0.4.0 (TBD)
+## Version 0.4.0 (2024-10-24)
 
 - Updated to use Bevy 0.14
 - Ignore `PhantomData` with the `reflect` and `serde` features
-- Added a `serde` feature to derive `Serialize` and `Deserialize` on most types
 - Derive `Hash` on `CartesianPosition`
 - Set `index_from_pos` and `pos_from_index` to `pub` on `CartesianGrid`
 - Removed `nodes` method on `GridData` 
@@ -12,6 +11,7 @@
 - Added `iter` and `iter_mut` to `GridData`
 - Added `get_from_pos` and `get_from_pos_mut` to Cartesian `GridData`
 - Added a `flood_fill` algorithm for `Cartesian2D` `GridData`
+- Added a `serde` feature to derive `Serialize` and `Deserialize` on most types
 
 ## Version 0.3.1 (2024-09-21)
 
