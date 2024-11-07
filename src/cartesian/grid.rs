@@ -41,7 +41,7 @@ impl<C: CartesianCoordinates> Grid<C> for CartesianGrid<C> {
     /// Returns the total size of the grid
     #[inline]
     fn total_size(&self) -> usize {
-        (self.size_x * self.size_y).try_into().unwrap()
+        (self.size_xy * self.size_z).try_into().unwrap()
     }
 
     #[inline]
