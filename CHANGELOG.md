@@ -22,6 +22,11 @@
 - Added a `flood_fill` algorithm for `Cartesian2D` `GridData`
 - Added a `serde` feature to derive `Serialize` and `Deserialize` on most types
 
+## Version 0.3.2 (2024-11-07)
+
+(backport of the 0.4.1 fix) 
+- Fix the `total_size` implementation in `CartesianGrid`
+
 ## Version 0.3.1 (2024-09-21)
 
 - Fix the `reflect` feature
