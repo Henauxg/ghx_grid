@@ -2,7 +2,8 @@
 
 ## Version 0.4.1 (2024-11-07)
 
-- Fix the `total_size` implementation in `CartesianGrid`
+- Fixed the `total_size` implementation in `CartesianGrid`
+- Fixed some code documentation/links
 
 ## Version 0.4.0 (2024-10-24)
 

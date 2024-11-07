@@ -133,7 +133,7 @@ impl<D> GridData<Cartesian2D, D, CartesianGrid<Cartesian2D>> {
     /// - `conditon`should be true for `from` else the function returns immediately.
     /// - If present `pre_allocated_queue` will be cleared before running the algorithm (but existing allocation will be kept)
     ///
-    /// Based on https://en.wikipedia.org/wiki/Flood_fill#Further_potential_optimizations but working with looping grids. Some more optimizations may be taken from https://en.wikipedia.org/wiki/Flood_fill#Span_filling once adapted to looping grids.
+    /// Based on <https://en.wikipedia.org/wiki/Flood_fill#Further_potential_optimizations> but working with looping grids. Some more optimizations may be taken from <https://en.wikipedia.org/wiki/Flood_fill#Span_filling> once adapted to looping grids.
     ///
     /// /!\ This uses 'conditon'+'action' as a way to not backtrack. If the effect of 'action' does not disables 'condition', this will loop !
     pub fn flood_fill<CO: FnMut(&D) -> bool, AC: FnMut(&mut D)>(

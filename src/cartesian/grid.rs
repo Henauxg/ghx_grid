@@ -235,7 +235,7 @@ impl<C: CartesianCoordinates> CartesianGrid<C> {
         self.index_from_coords(grid_position.x, grid_position.y, grid_position.z)
     }
 
-    /// Returns a [`GridPosition`] from the index of an element in this [`GridDefinition`].
+    /// Returns a [`CartesianPosition`] from the index of an element in this [`CartesianPosition`].
     ///
     /// Panics if the index is not a valid index.
     #[inline]
