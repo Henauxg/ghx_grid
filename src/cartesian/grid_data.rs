@@ -23,6 +23,21 @@ impl<C: CartesianCoordinates, D> GridData<C, D, CartesianGrid<C>> {
     pub fn get_mut_from_pos(&mut self, pos: &CartesianPosition) -> &mut D {
         self.get_mut(self.grid().index_from_pos(pos))
     }
+
+    /// Returns the data at the next position in the grid when moving 1 unit in `direction` from `grid_position`.
+    ///
+    /// Returns `None` if the destination is not in the grid.
+    ///
+    /// NO CHECK is done to verify that the given `grid_position` is a valid position for this grid.
+    pub fn get_next_in_direction(
+        &self,
+        grid_position: &CartesianPosition,
+        direction: Direction,
+    ) -> Option<&D> {
+        self.grid()
+            .get_next_index_in_direction(grid_position, direction)
+            .and_then(|index| Some(self.get(index)))
+    }
 }
 
 /// Uses Copy if possible.
