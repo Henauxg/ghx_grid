@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.3.2 (2024-11-07)
+
+- Fix the `total_size` implementation in `CartesianGrid`
+
 ## Version 0.3.1 (2024-09-21)
 
 - Fix the `reflect` feature
