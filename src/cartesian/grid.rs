@@ -3,7 +3,7 @@ use std::{fmt, ops::Range};
 use crate::{
     coordinate_system::CoordinateSystem,
     direction::Direction,
-    grid::{Grid, GridData, GridIndex},
+    grid::{Grid, GridData, GridIndex, NodeRef},
 };
 
 use super::coordinates::{
@@ -347,5 +347,12 @@ impl<C: CartesianCoordinates> CartesianGrid<C> {
     /// Creates a [`GridData`] with the size of the [`CartesianGrid`] with each element value being a copy of the given one.
     pub fn new_grid_data<D: Clone>(&self, element: D) -> GridData<C, D, CartesianGrid<C>> {
         GridData::new(self.clone(), vec![element; self.total_size()])
+    }
+}
+
+impl<C: CartesianCoordinates> NodeRef<C, CartesianGrid<C>> for CartesianPosition {
+    #[inline]
+    fn to_index(&self, grid: &CartesianGrid<C>) -> GridIndex {
+        grid.index_from_pos(self)
     }
 }
