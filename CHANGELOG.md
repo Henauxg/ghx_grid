@@ -2,7 +2,9 @@
 
 ## Version 0.5.0 (TBD)
 
-- Update to use Bevy 0.15
+- Updated to use Bevy 0.15
+- Changed `NodeRef` trait to be generic over the concrete `Grid` type
+- Implemented `NodeRef` for `CartesianPosition`
 
 ## Version 0.4.1 (2024-11-07)
 
