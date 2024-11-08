@@ -97,7 +97,7 @@ where
     ///
     /// NO CHECK is done to verify that the given index is a valid index for this grid.
     #[inline]
-    pub fn set<N: NodeRef<C>>(&mut self, index_ref: N, value: D) {
+    pub fn set<N: NodeRef<C, G>>(&mut self, index_ref: N, value: D) {
         self.data[index_ref.to_index(&self.grid)] = value;
     }
 
@@ -146,14 +146,14 @@ impl<C: CoordinateSystem, D: Clone, G: Grid<C>> GridData<C, D, G> {
 }
 
 /// Represents a reference to an element of a [`Grid`] or [`GridData`]
-pub trait NodeRef<C: CoordinateSystem> {
+pub trait NodeRef<C: CoordinateSystem, G: Grid<C>> {
     /// Returns the [`GridIndex`] that is referenced by this `NodeRef`.
-    fn to_index(&self, grid: &impl Grid<C>) -> GridIndex;
+    fn to_index(&self, grid: &G) -> GridIndex;
 }
-impl<C: CoordinateSystem> NodeRef<C> for GridIndex {
+
+impl<C: CoordinateSystem, G: Grid<C>> NodeRef<C, G> for GridIndex {
     #[inline]
-    fn to_index(&self, _grid: &impl Grid<C>) -> GridIndex {
+    fn to_index(&self, _grid: &G) -> GridIndex {
         *self
     }
 }
-// TODO Impl NodeRef for CartesianPosition in CartesianCoordinates. Might need to newtype GridIndex.
