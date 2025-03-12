@@ -1,6 +1,6 @@
 # Changelog
 
-## Version 0.5.0 (TBD)
+## Version 0.5.0 (2024-03-12)
 
 - Updated to use Bevy 0.15
 - Changed `NodeRef` trait to be generic over the concrete `Grid` type
