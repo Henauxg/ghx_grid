@@ -356,3 +356,17 @@ impl<C: CartesianCoordinates> NodeRef<C, CartesianGrid<C>> for CartesianPosition
         grid.index_from_pos(self)
     }
 }
+
+impl<C: CartesianCoordinates> NodeRef<C, CartesianGrid<C>> for (u32, u32) {
+    #[inline]
+    fn to_index(&self, grid: &CartesianGrid<C>) -> GridIndex {
+        grid.index_from_coords(self.0, self.1, 0)
+    }
+}
+
+impl<C: CartesianCoordinates> NodeRef<C, CartesianGrid<C>> for (u32, u32, u32) {
+    #[inline]
+    fn to_index(&self, grid: &CartesianGrid<C>) -> GridIndex {
+        grid.index_from_coords(self.0, self.1, self.2)
+    }
+}
