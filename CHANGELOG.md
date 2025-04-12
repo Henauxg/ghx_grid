@@ -1,5 +1,13 @@
 # Changelog
 
+## Version 0.6.0 (TBD)
+
+- Updated to use Bevy 0.16
+- Added impl of `NodeRef<C, CartesianGrid<C>>` for `(u32, u32)` and `(u32, u32, u32)`
+- Added impl of `From<(u32, u32)>` and `From<(u32, u32, u32)>` for `CartesianPosition`
+- Added `manhattan_distance` on `CartesianPosition`
+- Added a `direction` helper on `<C: CartesianCoordinates> CartesianGrid<C>`
+
 ## Version 0.5.0 (2024-03-12)
 
 - Updated to use Bevy 0.15
