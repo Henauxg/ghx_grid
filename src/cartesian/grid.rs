@@ -339,6 +339,27 @@ impl<C: CartesianCoordinates> CartesianGrid<C> {
         })
     }
 
+    /// Returns an approximate [Direction] when looking towards grid node `to` at grid node `from`.
+    ///
+    /// When multiple coordinates are different, priority is given to the X coordinate, then to the Y.
+    pub fn direction(&self, from: GridIndex, to: GridIndex) -> Direction {
+        let from_pos = self.pos_from_index(from);
+        let to_pos = self.pos_from_index(to);
+        if from_pos.x < to_pos.x {
+            Direction::XForward
+        } else if from_pos.x > to_pos.x {
+            Direction::XBackward
+        } else if from_pos.y < to_pos.y {
+            Direction::YForward
+        } else if from_pos.y > to_pos.y {
+            Direction::YBackward
+        } else if from_pos.z < to_pos.z {
+            Direction::ZForward
+        } else {
+            Direction::ZBackward
+        }
+    }
+
     /// Creates a default [`GridData`] with the size of the [`CartesianGrid`] with each element value set to its default one.
     pub fn default_grid_data<D: Default + Clone>(&self) -> GridData<C, D, CartesianGrid<C>> {
         GridData::new(self.clone(), vec![D::default(); self.total_size()])
