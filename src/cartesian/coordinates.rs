@@ -218,6 +218,18 @@ impl CartesianPosition {
         Self { x, y, z: 0 }
     }
 }
+
+impl From<(u32, u32)> for CartesianPosition {
+    fn from(xy: (u32, u32)) -> Self {
+        CartesianPosition::new(xy.0, xy.1, 0)
+    }
+}
+impl From<(u32, u32, u32)> for CartesianPosition {
+    fn from(xyz: (u32, u32, u32)) -> Self {
+        CartesianPosition::new(xyz.0, xyz.1, xyz.2)
+    }
+}
+
 impl fmt::Display for CartesianPosition {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "x: {}, y: {}, z: {}", self.x, self.y, self.z)
