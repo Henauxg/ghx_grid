@@ -217,6 +217,11 @@ impl CartesianPosition {
     pub fn new_xy(x: u32, y: u32) -> Self {
         Self { x, y, z: 0 }
     }
+
+    /// Returns the Manhattan distance between the two positions
+    pub fn manhattan_distance(&self, other: &Self) -> u32 {
+        self.x.abs_diff(other.x) + self.y.abs_diff(other.y) + self.z.abs_diff(other.z)
+    }
 }
 
 impl From<(u32, u32)> for CartesianPosition {
