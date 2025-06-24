@@ -1,6 +1,6 @@
 # Changelog
 
-## Version 0.6.0 (TBD)
+## Version 0.6.0 (2025-06-24)
 
 - Updated to use Bevy 0.16
 - Added impl of `NodeRef<C, CartesianGrid<C>>` for `(u32, u32)` and `(u32, u32, u32)`
