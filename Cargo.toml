@@ -25,4 +25,4 @@ reflect = ["bevy"]
 serde = { version = "1.0.197", optional = true, features = ["derive"] }
 
 # Only enabled when the "bevy" feature is enabled
-bevy = { version = "0.16.0-rc.4", optional = true, default-features = false }
+bevy = { version = "0.16.1", optional = true, default-features = false }
