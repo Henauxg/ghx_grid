@@ -1,6 +1,6 @@
 [package]
 name = "ghx_grid"
-version = "0.6.0"
+version = "0.7.0"
 description = "2D & 3D grid structures & utilities"
 repository = "https://github.com/Henauxg/ghx_grid"
 documentation = "https://docs.rs/ghx_grid"
@@ -14,9 +14,9 @@ readme = "README.md"
 default = ["serde"]
 serde = ["dep:serde"]
 
-# Enables some Bevy trait derives
+# Disabled by default, enabling it simply derives `Component` on common structs of the crate.
 bevy = ["dep:bevy"]
-# Enables more Bevy trait derives for reflection
+# Disabled by default, enabling it simply derives `Reflect` on common structs of the crate.
 reflect = ["bevy"]
 
 [dependencies]
@@ -25,4 +25,4 @@ reflect = ["bevy"]
 serde = { version = "1.0.197", optional = true, features = ["derive"] }
 
 # Only enabled when the "bevy" feature is enabled
-bevy = { version = "0.16.1", optional = true, default-features = false }
+bevy = { version = ">=0.16,<=0.17", optional = true, default-features = false }

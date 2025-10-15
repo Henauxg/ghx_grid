@@ -13,20 +13,18 @@ Structures and utilities to manipulate 2d & 3d grid data.
 
 *Find the list and description in [Cargo.toml](Cargo.toml)*
 
-- `bevy`: Disabled by default, enabling it simply derives `Component` on common structs of the crate.
-- `reflect`: Disabled by default, enabling it simply derives `Reflect` on common structs of the crate.
-
 ## For Bevy users
 
 #### Compatible Bevy versions
 
- | **ghx_grid** | **bevy** |
- | :----------- | :------- |
- | 0.6          | 0.16     |
- | 0.5          | 0.15     |
- | 0.4          | 0.14     |
- | 0.2-0.3      | 0.13     |
- | 0.1          | 0.12     |
+ | **ghx_grid** | **bevy**  |
+ | :----------- | :-------- |
+ | 0.7          | 0.16-0.17 |
+ | 0.6          | 0.16      |
+ | 0.5          | 0.15      |
+ | 0.4          | 0.14      |
+ | 0.2-0.3      | 0.13      |
+ | 0.1          | 0.12      |
 
 See the [`bevy_ghx_grid`](https://github.com/Henauxg/bevy_ghx_grid) crate which uses and exposes `ghx_grid`, as well as additional plugins and utilities dedicated to [`Bevy`](https://github.com/bevyengine/bevy).
 
