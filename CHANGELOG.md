@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.9.0 (2026-08-23)
+
+- Compatible with Bevy 0.19
+
 ## Version 0.8.0 (2026-01-18)
 
 - Compatible with Bevy 0.18
