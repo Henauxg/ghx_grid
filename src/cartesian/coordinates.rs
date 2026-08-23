@@ -63,7 +63,7 @@ impl CartesianCoordinates for Cartesian3D {
 }
 
 /// All the directions that forms a 2d cartesian coordinate system
-pub const CARTESIAN_2D_DIRECTIONS: &'static [Direction] = &[
+pub const CARTESIAN_2D_DIRECTIONS: &[Direction] = &[
     Direction::XForward,
     Direction::YForward,
     Direction::XBackward,
@@ -71,7 +71,7 @@ pub const CARTESIAN_2D_DIRECTIONS: &'static [Direction] = &[
 ];
 
 /// All the [`GridDelta`], one for each direction, in a cartesian 2d coordinate system
-pub const CARTESIAN_2D_DELTAS: &'static [GridDelta] = &[
+pub const CARTESIAN_2D_DELTAS: &[GridDelta] = &[
     GridDelta {
         // XForward
         dx: 1,
@@ -99,7 +99,7 @@ pub const CARTESIAN_2D_DELTAS: &'static [GridDelta] = &[
 ];
 
 /// All the directions that forms a 3d cartesian coordinate system
-pub const CARTESIAN_3D_DIRECTIONS: &'static [Direction] = &[
+pub const CARTESIAN_3D_DIRECTIONS: &[Direction] = &[
     Direction::XForward,
     Direction::YForward,
     Direction::XBackward,
@@ -109,7 +109,7 @@ pub const CARTESIAN_3D_DIRECTIONS: &'static [Direction] = &[
 ];
 
 /// All the [`GridDelta`], one for each direction, in a cartesian 3d coordinate system
-pub const CARTESIAN_3D_DELTAS: &'static [GridDelta] = &[
+pub const CARTESIAN_3D_DELTAS: &[GridDelta] = &[
     GridDelta {
         // XForward
         dx: 1,

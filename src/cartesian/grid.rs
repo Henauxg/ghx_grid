@@ -259,10 +259,8 @@ impl<C: CartesianCoordinates> CartesianGrid<C> {
         direction: Direction,
     ) -> Option<GridIndex> {
         let delta = &self.coord_system.deltas()[direction as usize];
-        match self.get_next_pos(grid_position, &delta) {
-            Some(next_pos) => Some(self.index_from_pos(&next_pos)),
-            None => None,
-        }
+        self.get_next_pos(grid_position, delta)
+            .map(|next_pos| self.index_from_pos(&next_pos))
     }
 
     /// Returns the index of the next position in the grid when moving `units` in `direction` from `grid_position`.
@@ -276,11 +274,9 @@ impl<C: CartesianCoordinates> CartesianGrid<C> {
         direction: Direction,
         units: i32,
     ) -> Option<GridIndex> {
-        let delta = self.coord_system.deltas()[direction as usize].clone() * units;
-        match self.get_next_pos(grid_position, &delta) {
-            Some(next_pos) => Some(self.index_from_pos(&next_pos)),
-            None => None,
-        }
+        let delta = self.coord_system.deltas()[direction as usize] * units;
+        self.get_next_pos(grid_position, &delta)
+            .map(|next_pos| self.index_from_pos(&next_pos))
     }
 
     /// Returns the the next position in the grid when moving 1 unit in `direction` from `grid_position`.
@@ -294,10 +290,7 @@ impl<C: CartesianCoordinates> CartesianGrid<C> {
         direction: Direction,
     ) -> Option<CartesianPosition> {
         let delta = &self.coord_system.deltas()[direction as usize];
-        match self.get_next_pos(grid_position, &delta) {
-            Some(next_pos) => Some(next_pos),
-            None => None,
-        }
+        self.get_next_pos(grid_position, delta)
     }
 
     /// Returns the next position in the grid when moving `delta` unit(s) in `direction` from `grid_position`.
@@ -310,8 +303,8 @@ impl<C: CartesianCoordinates> CartesianGrid<C> {
         grid_position: &CartesianPosition,
         delta: &GridDelta,
     ) -> Option<CartesianPosition> {
-        let mut next_pos = grid_position.get_delta_position(&delta);
-        for (looping, pos, size) in vec![
+        let mut next_pos = grid_position.get_delta_position(delta);
+        for (looping, pos, size) in [
             (self.looping_x, &mut next_pos.0, self.size_x),
             (self.looping_y, &mut next_pos.1, self.size_y),
             (self.looping_z, &mut next_pos.2, self.size_z),

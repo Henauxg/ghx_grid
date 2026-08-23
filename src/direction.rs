@@ -68,37 +68,37 @@ impl From<Direction> for usize {
     }
 }
 
-pub(crate) const X_POS_AXIS: &'static [Direction] = &[
+pub(crate) const X_POS_AXIS: &[Direction] = &[
     Direction::YForward,
     Direction::ZForward,
     Direction::YBackward,
     Direction::ZBackward,
 ];
-pub(crate) const X_NEG_AXIS: &'static [Direction] = &[
+pub(crate) const X_NEG_AXIS: &[Direction] = &[
     Direction::ZForward,
     Direction::YForward,
     Direction::ZBackward,
     Direction::YBackward,
 ];
-pub(crate) const Y_POS_AXIS: &'static [Direction] = &[
+pub(crate) const Y_POS_AXIS: &[Direction] = &[
     Direction::ZForward,
     Direction::XForward,
     Direction::ZBackward,
     Direction::XBackward,
 ];
-pub(crate) const Y_NEG_AXIS: &'static [Direction] = &[
+pub(crate) const Y_NEG_AXIS: &[Direction] = &[
     Direction::XForward,
     Direction::ZForward,
     Direction::XBackward,
     Direction::ZBackward,
 ];
-pub(crate) const Z_POS_AXIS: &'static [Direction] = &[
+pub(crate) const Z_POS_AXIS: &[Direction] = &[
     Direction::XForward,
     Direction::YForward,
     Direction::XBackward,
     Direction::YBackward,
 ];
-pub(crate) const Z_NEG_AXIS: &'static [Direction] = &[
+pub(crate) const Z_NEG_AXIS: &[Direction] = &[
     Direction::YForward,
     Direction::XForward,
     Direction::YBackward,

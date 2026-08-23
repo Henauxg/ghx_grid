@@ -13,7 +13,7 @@ impl<C: CartesianCoordinates, D> GridData<C, D, CartesianGrid<C>> {
     /// NO CHECK is done to verify that the given position is a valid position for this grid.
     #[inline]
     pub fn get_from_pos(&self, pos: &CartesianPosition) -> &D {
-        &self.get(self.grid().index_from_pos(pos))
+        self.get(self.grid().index_from_pos(pos))
     }
 
     /// Returns a reference to the element at this position.
@@ -36,7 +36,7 @@ impl<C: CartesianCoordinates, D> GridData<C, D, CartesianGrid<C>> {
     ) -> Option<&D> {
         self.grid()
             .get_next_index_in_direction(grid_position, direction)
-            .and_then(|index| Some(self.get(index)))
+            .map(|index| self.get(index))
     }
 }
 
@@ -95,10 +95,9 @@ impl<C: CartesianCoordinates, D: Clone> GridData<C, D, CartesianGrid<C>> {
 
     /// Sets all nodes of the grix with y=`y` and z=`z` to `value`
     pub fn set_all_yz(&mut self, y: u32, z: u32, value: D) {
-        let mut index = y * self.grid().size_x() + z * self.grid().size_xy();
-        for _x in 0..self.grid().size_x() {
+        let start = y * self.grid().size_x() + z * self.grid().size_xy();
+        for index in start..start + self.grid().size_x() {
             self.set_raw(index as usize, value.clone());
-            index += 1;
         }
     }
 }
@@ -109,7 +108,7 @@ impl<D> GridData<Cartesian2D, D, CartesianGrid<Cartesian2D>> {
     /// NO CHECK is done to verify that the given position is a valid position for this grid.
     #[inline]
     pub fn get_2d(&self, x: u32, y: u32) -> &D {
-        &self.get(self.grid().get_index_2d(x, y))
+        self.get(self.grid().get_index_2d(x, y))
     }
 
     /// Returns a mutable reference to the data at this position.
@@ -127,9 +126,9 @@ impl<D> GridData<Cartesian2D, D, CartesianGrid<Cartesian2D>> {
         condition: &mut C,
         action: &mut A,
     ) {
-        for vertical_dir in vec![Direction::YForward, Direction::YBackward].iter() {
+        for vertical_dir in [Direction::YForward, Direction::YBackward].iter() {
             if let Some(vertical_node_pos) =
-                self.grid().get_next_pos_in_direction(&from, *vertical_dir)
+                self.grid().get_next_pos_in_direction(from, *vertical_dir)
             {
                 let node_data = self.get_mut_from_pos(&vertical_node_pos);
                 if condition(node_data) {
@@ -158,7 +157,7 @@ impl<D> GridData<Cartesian2D, D, CartesianGrid<Cartesian2D>> {
         mut action: AC,
         pre_allocated_queue: Option<&mut VecDeque<CartesianPosition>>,
     ) {
-        let mut queue = match pre_allocated_queue {
+        let queue = match pre_allocated_queue {
             Some(q) => {
                 q.clear();
                 q
@@ -178,9 +177,9 @@ impl<D> GridData<Cartesian2D, D, CartesianGrid<Cartesian2D>> {
         }
 
         while let Some(pos) = queue.pop_front() {
-            self.explore_vertical(&mut queue, &pos, &mut condition, &mut action);
+            self.explore_vertical(queue, &pos, &mut condition, &mut action);
 
-            for &horizontal_dir in vec![Direction::XBackward, Direction::XForward].iter() {
+            for &horizontal_dir in [Direction::XBackward, Direction::XForward].iter() {
                 let mut x_pos = pos;
 
                 // Use size_x as an upper limit of the iteration count
@@ -194,7 +193,7 @@ impl<D> GridData<Cartesian2D, D, CartesianGrid<Cartesian2D>> {
                         if condition(node_data) {
                             action(node_data);
                             self.explore_vertical(
-                                &mut queue,
+                                queue,
                                 &next_node_pos,
                                 &mut condition,
                                 &mut action,
@@ -218,7 +217,7 @@ impl<D> GridData<Cartesian3D, D, CartesianGrid<Cartesian3D>> {
     /// NO CHECK is done to verify that the given position is a valid position for this grid.
     #[inline]
     pub fn get_3d(&self, x: u32, y: u32, z: u32) -> &D {
-        &self.get(self.grid().index_from_coords(x, y, z))
+        self.get(self.grid().index_from_coords(x, y, z))
     }
 
     /// Returns a mutable reference to the data at this position.
