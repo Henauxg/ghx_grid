@@ -19,6 +19,7 @@ Structures and utilities to manipulate 2d & 3d grid data.
 
  | **ghx_grid** | **bevy**  |
  | :----------- | :-------- |
+ | 0.10         | 0.20      |
  | 0.9          | 0.19      |
  | 0.8          | 0.18      |
  | 0.7          | 0.16-0.17 |
